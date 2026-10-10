@@ -37,7 +37,7 @@ BHARATA = {
     "te": "జంబూద్వీపే భరతవర్షే భరతఖండే మేరోః దక్షిణ దిగ్భాగే",
     "en": "jamboodweepe bharata varshe bharata khande meroh dakshina digbhaage",
 }
-PLACE = {"lombard": US, "naperville": US, "normal": US, "dallas": US, "hyderabad": HYDERABAD,
+PLACE = {"lombard": US, "naperville": US, "normal": US, "dallas": US, "raleigh": US, "hyderabad": HYDERABAD,
          "mumbai": BHARATA, "kolkata": BHARATA, "bengaluru": BHARATA, "chennai": BHARATA}
 
 SAMVATSARA_PHRASE = {"te": "అస్మిన్ వర్తమాన వ్యావహారిక చాంద్రమానేన {} నామ సంవత్సరే",

@@ -14,7 +14,7 @@ A daily Telugu/English panchangam for US and Indian cities, with a calendar subs
 - **The day's sankalpam,** split by sandhya when the tithi changes.
 - **A daily question.**
 
-**Cities:** Lombard, Naperville, Normal, Dallas, Hyderabad, Mumbai, Kolkata, Bengaluru, Chennai.
+**Cities:** Lombard, Naperville, Normal, Dallas, Raleigh, Hyderabad, Mumbai, Kolkata, Bengaluru, Chennai.
 
 ## How it works
 - **Engine:** `gen/` computes everything with Swiss Ephemeris (built-in Moshier ephemeris).

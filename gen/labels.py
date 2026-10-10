@@ -94,6 +94,6 @@ RASI = {
            "ధనుస్సు", "మకరం", "కుంభం", "మీనం"],
 }
 
-CITY_TE = {"lombard": "లోంబార్డ్", "naperville": "నేపర్‌విల్", "normal": "నార్మల్", "dallas": "డాలస్",
+CITY_TE = {"lombard": "లోంబార్డ్", "naperville": "నేపర్‌విల్", "normal": "నార్మల్", "dallas": "డాలస్", "raleigh": "రాలీ",
            "hyderabad": "హైదరాబాద్", "mumbai": "ముంబై", "kolkata": "కోల్‌కతా", "bengaluru": "బెంగళూరు",
            "chennai": "చెన్నై"}

@@ -49,6 +49,7 @@ CITIES = [
     City("naperville", "Naperville, IL", 41.7508, -88.1535, "America/Chicago"),
     City("normal", "Normal, IL", 40.5142, -88.9906, "America/Chicago"),
     City("dallas", "Dallas, TX", 32.7767, -96.7970, "America/Chicago"),
+    City("raleigh", "Raleigh, NC", 35.7796, -78.6382, "America/New_York"),
     City("hyderabad", "Hyderabad", 17.3850, 78.4867, "Asia/Kolkata"),
     City("mumbai", "Mumbai", 19.0760, 72.8777, "Asia/Kolkata"),
     City("kolkata", "Kolkata", 22.5726, 88.3639, "Asia/Kolkata"),
