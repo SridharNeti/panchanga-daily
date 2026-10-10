@@ -1,0 +1,443 @@
+<title>Panchanga Daily</title>
+<meta name="description" content="Daily Telugu panchangam for US and Indian cities.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Telugu&family=Noto+Sans+Telugu:wght@400;600&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: one calm reading column, like the daily page of a printed panchangam:
+   the samvatsara...vara line first, then limbs, then times. */
+:root {
+  --bg: #f3f6f1;
+  --surface: #ffffff;
+  --ink: #1c2925;
+  --muted: #586a62;
+  --line: #d9e1d8;
+  --accent: #9e2a2f;        /* kumkum */
+  --gold: #8a5a0b;          /* turmeric, text-safe */
+  --gold-bg: #fbf0d6;
+  --avoid: #973030;
+  --avoid-bg: #fbeceb;
+  --good: #2c6644;
+  --good-bg: #e6f2ea;
+  --display: "Tiro Telugu", "Noto Serif Telugu", Georgia, serif;
+  --body: "Source Sans 3", "Noto Sans Telugu", system-ui, sans-serif;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1613; --surface: #16201c; --ink: #e4ece7; --muted: #9aaba3; --line: #2a3832;
+    --accent: #ef8a8a; --gold: #e7bb55; --gold-bg: #2a2313; --avoid: #f3a3a3; --avoid-bg: #2b1818;
+    --good: #93d3aa; --good-bg: #14261b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1613; --surface: #16201c; --ink: #e4ece7; --muted: #9aaba3; --line: #2a3832;
+  --accent: #ef8a8a; --gold: #e7bb55; --gold-bg: #2a2313; --avoid: #f3a3a3; --avoid-bg: #2b1818;
+  --good: #93d3aa; --good-bg: #14261b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 17px/1.55 var(--body); margin: 0; }
+.wrap { max-width: 680px; margin: 0 auto; padding-inline: 16px; padding-block: 12px 48px; display: grid; gap: 18px; }
+h1, h2 { font-family: var(--display); font-weight: 400; text-wrap: balance; margin: 0; }
+h1 { font-size: 1.55rem; color: var(--accent); line-height: 1.2; }
+h1 small { display: block; font-family: var(--body); font-size: .8rem; color: var(--muted); letter-spacing: .04em; }
+h2 { font-size: 1.2rem; }
+.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+select, button { font: inherit; font-size: .95rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; min-height: 40px; cursor: pointer; }
+button:focus-visible, select:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; min-width: 52px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.datebar { display: flex; align-items: center; gap: 8px; }
+.datebar .date { flex: 1; min-width: 0; text-align: center; font-family: var(--display); font-size: 1.15rem; }
+.datebar button { min-width: 44px; }
+.preview { font-size: .85rem; color: var(--gold); background: var(--gold-bg); border-radius: 8px; padding: 8px 12px; }
+
+/* The traditional opening line: samvatsara ... vara */
+.ribbon { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 1px;
+  background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.ribbon div { background: var(--surface); padding: 10px 12px; min-width: 0; }
+.lbl { display: block; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ribbon b { font-family: var(--display); font-weight: 400; font-size: 1.12rem; }
+.fest { display: flex; flex-wrap: wrap; gap: 8px; }
+.fest span { background: var(--gold-bg); color: var(--gold); border-radius: 999px; padding: 4px 12px; font-weight: 600; }
+
+section { display: grid; gap: 10px; }
+.rows { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.row { display: grid; grid-template-columns: 9.5em 1fr; gap: 12px; padding: 10px 14px; border-top: 1px solid var(--line); }
+.row:first-child { border-top: 0; }
+.row > span:first-child { color: var(--muted); }
+.row > span:last-child { min-width: 0; font-variant-numeric: tabular-nums; }
+.row .then { display: block; color: var(--muted); }
+.times { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.times .rows { border-left-width: 4px; }
+.avoid .rows { border-left-color: var(--avoid); }
+.avoid h2 { color: var(--avoid); }
+.good .rows { border-left-color: var(--good); }
+.good h2 { color: var(--good); }
+.sk { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: grid; gap: 8px; }
+.sk .when { font-size: .85rem; color: var(--muted); }
+.sk p { margin: 0; font-family: var(--display); font-size: 1.08rem; line-height: 1.7; }
+.sk details p { font-size: 1rem; color: var(--muted); }
+.sk summary { cursor: pointer; color: var(--accent); font-size: .92rem; }
+.note { font-size: .88rem; color: var(--muted); margin: 0; }
+.quiz { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: grid; gap: 10px; }
+.quiz .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.quiz .opts button[data-state="right"] { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.quiz .opts button[data-state="wrong"] { background: var(--avoid-bg); border-color: var(--avoid); color: var(--avoid); }
+.quiz .result { margin: 0; min-height: 1.5em; }
+.sub { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: grid; gap: 12px; }
+.sub .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.sub a.btn { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border-radius: 8px;
+  background: var(--accent); color: var(--surface); text-decoration: none; font-weight: 600; }
+.sub a.btn.alt { background: var(--surface); color: var(--accent); border: 1px solid var(--accent); }
+.sub a.btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.sub ol { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
+.sub h3 { margin: 0; font-size: 1rem; }
+.sub code { font-size: .8rem; overflow-wrap: anywhere; color: var(--muted); }
+footer { font-size: .85rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+@media (max-width: 420px) { .row { grid-template-columns: 1fr; gap: 2px; } }
+@media (prefers-reduced-motion: no-preference) { .fade { animation: in .25s ease-out; } @keyframes in { from { opacity: .4; } } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1 id="appname">పంచాంగం<small>Panchanga Daily</small></h1>
+    <div class="controls">
+      <select id="city" aria-label="City"></select>
+      <div class="seg" role="group" aria-label="Language">
+        <button id="lang-en" type="button">EN</button>
+        <button id="lang-te" type="button">తెలుగు</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="datebar">
+    <button id="prev" type="button" aria-label="Previous day">‹</button>
+    <div class="date" id="date"></div>
+    <button id="next" type="button" aria-label="Next day">›</button>
+    <button id="today" type="button"></button>
+  </div>
+  <div class="preview" id="preview" hidden></div>
+
+  <main id="main" class="wrap" style="padding-inline:0;padding-block:0"></main>
+
+  <section id="subscribe" aria-labelledby="sub-h"></section>
+
+  <footer id="footer"></footer>
+</div>
+
+<!--INLINE-DATA-->
+<script>
+(() => {
+  const UI = {
+    en: {
+      today: "Today", samvatsara: "Samvatsara", ayana: "Ayana", ritu: "Ritu", masa: "Masa", paksha: "Paksha",
+      tithi: "Tithi", vara: "Vara", nakshatra: "Nakshatra", yoga: "Yoga", karana: "Karana",
+      limbs: "Panchanga", sun: "Sun and Moon", avoid: "Times to avoid", good: "Good times",
+      festivals: "Festivals and vratas", sankalpam: "Sankalpam", quiz: "Today's question",
+      sunrise: "Sunrise", sunset: "Sunset", midday: "Midday", moonrise: "Moonrise", moonset: "Moonset",
+      sun_rasi: "Sun in", moon_rasi: "Moon in",
+      rahu_kalam: "Rahu kalam", yamagandam: "Yamagandam", gulika_kalam: "Gulika kalam",
+      durmuhurtam: "Durmuhurtam", varjyam: "Varjyam", brahma_muhurta: "Brahma muhurta",
+      abhijit: "Abhijit muhurta", amrita_kalam: "Amrita kalam", none: "None today",
+      until: t => `until ${t}`, then: "then",
+      pratah: "Pratah sandhya", madhyahnika: "Madhyahnikam", sayam: "Sayam sandhya",
+      full: "Full sankalpam", copy: "Copy", copied: "Copied",
+      gotra: "Continue with your gotra and name, as your family says it.",
+      changes: "The tithi changes during the day, so the sankalpam differs by sandhya.",
+      q: { tithi: "Which tithi is it at sunrise today?", nakshatra: "Which nakshatra is the Moon in at sunrise?",
+           masa: "Which masa (lunar month) is it?", ritu: "Which ritu (season) is it?" },
+      fact: { tithi: "A tithi passes each time the Moon moves 12° ahead of the Sun; 30 tithis make a lunar month.",
+              nakshatra: "The 27 nakshatras divide the sky into parts of 13°20′; the Moon spends about a day in each.",
+              masa: "In the Telugu (amanta) calendar a month runs from one Amavasya to the next.",
+              ritu: "Each ritu spans two lunar months; Vasanta begins with Chaitra." },
+      right: "Correct.", answer: a => `The answer is ${a}.`, streak: n => `Streak: ${n} day${n === 1 ? "" : "s"}`,
+      out: "No data for this date yet.",
+      foot: c => `Calculated for ${c} with Lahiri ayanamsa and the sunrise rule. All times are local. For vrata dates, follow your family priest.`,
+      preview: r => `Preview with data for ${r}. Telugu text is waiting for proofreading.`,
+      locale: "en-US",
+      sub: {
+        h: "Get it on your phone's calendar", intro: "Subscribe once. Each day then appears in your calendar with a 6:00 AM reminder, for the city and language chosen above.",
+        daily: "Every day", fest: "Festivals only", iphone: "iPhone / iPad / Mac", android: "Android (Google Calendar)", copy: "Copy link", copied: "Link copied",
+        ih: "iPhone", isteps: ["Tap “iPhone / iPad / Mac”, then Subscribe.", "Keep “Remove Alerts” switched off, so the 6 AM reminder works.", "Tap Done."],
+        ifix: "No reminder? Settings → Calendar (iOS 18: Settings → Apps → Calendar) → Calendar Accounts → Subscribed Calendars → Panchangam → turn off Remove Alerts.",
+        ah: "Android", asteps: ["Tap “Android (Google Calendar)” while signed in to Google, then Add.", "In the Google Calendar app: Settings → Panchangam → turn on Sync.", "In the same screen, set the all-day notification to 6:00 AM."],
+        stop: "To stop: iPhone, delete it under Subscribed Calendars. Google, open Settings → Panchangam → Unsubscribe.",
+      },
+    },
+    te: {
+      today: "ఈ రోజు", samvatsara: "సంవత్సరం", ayana: "అయనం", ritu: "ఋతువు", masa: "మాసం", paksha: "పక్షం",
+      tithi: "తిథి", vara: "వారం", nakshatra: "నక్షత్రం", yoga: "యోగం", karana: "కరణం",
+      limbs: "పంచాంగం", sun: "సూర్య చంద్రులు", avoid: "వర్జించవలసిన సమయాలు", good: "శుభ సమయాలు",
+      festivals: "పండుగలు, వ్రతాలు", sankalpam: "సంకల్పం", quiz: "నేటి ప్రశ్న",
+      sunrise: "సూర్యోదయం", sunset: "సూర్యాస్తమయం", midday: "మధ్యాహ్నం", moonrise: "చంద్రోదయం",
+      moonset: "చంద్రాస్తమయం", sun_rasi: "సూర్యుడు", moon_rasi: "చంద్రుడు",
+      rahu_kalam: "రాహు కాలం", yamagandam: "యమగండం", gulika_kalam: "గుళిక కాలం",
+      durmuhurtam: "దుర్ముహూర్తం", varjyam: "వర్జ్యం", brahma_muhurta: "బ్రహ్మ ముహూర్తం",
+      abhijit: "అభిజిత్ ముహూర్తం", amrita_kalam: "అమృత కాలం", none: "ఈ రోజు లేదు",
+      until: t => `${t} వరకు`, then: "తరువాత",
+      pratah: "ప్రాతః సంధ్య", madhyahnika: "మాధ్యాహ్నికం", sayam: "సాయం సంధ్య",
+      full: "పూర్తి సంకల్పం", copy: "కాపీ", copied: "కాపీ అయింది",
+      gotra: "తరువాత మీ కుటుంబ పద్ధతిలో గోత్రం, పేరు చెప్పుకోండి.",
+      changes: "ఈ రోజు తిథి మారుతుంది, కాబట్టి సంధ్యను బట్టి సంకల్పం మారుతుంది.",
+      q: { tithi: "ఈ రోజు సూర్యోదయానికి ఏ తిథి?", nakshatra: "సూర్యోదయానికి చంద్రుడు ఏ నక్షత్రంలో ఉన్నాడు?",
+           masa: "ఇది ఏ మాసం?", ritu: "ఇది ఏ ఋతువు?" },
+      fact: { tithi: "చంద్రుడు సూర్యుని కంటే 12° ముందుకు వెళ్ళిన ప్రతిసారి ఒక తిథి; 30 తిథులు ఒక చాంద్రమాసం.",
+              nakshatra: "27 నక్షత్రాలు ఆకాశాన్ని 13°20′ భాగాలుగా విభజిస్తాయి; చంద్రుడు ఒక్కో దానిలో సుమారు ఒక రోజు ఉంటాడు.",
+              masa: "తెలుగు (అమాంత) పద్ధతిలో మాసం ఒక అమావాస్య తరువాత నుండి మరో అమావాస్య వరకు.",
+              ritu: "ప్రతి ఋతువు రెండు మాసాలు; చైత్రంతో వసంత ఋతువు మొదలవుతుంది." },
+      right: "సరైన సమాధానం.", answer: a => `సమాధానం: ${a}.`, streak: n => `వరుసగా ${n} రోజులు`,
+      out: "ఈ తేదీకి ఇంకా వివరాలు లేవు.",
+      foot: c => `${c} కోసం లాహిరి అయనాంశ, సూర్యోదయ నియమంతో లెక్కించబడింది. సమయాలన్నీ స్థానికం. వ్రతాల తేదీల కోసం మీ కుటుంబ పురోహితుని సూచన పాటించండి.`,
+      preview: r => `ప్రివ్యూ: ${r} వివరాలు మాత్రమే. తెలుగు పాఠం ఇంకా సరిచూడాలి.`,
+      locale: "te-IN",
+      sub: {
+        h: "మీ ఫోన్ క్యాలెండర్‌లో", intro: "ఒక్కసారి సబ్‌స్క్రైబ్ చేస్తే చాలు. పైన ఎంచుకున్న ఊరు, భాషలో ప్రతి రోజు ఉదయం 6 గంటలకు గుర్తు చేస్తుంది.",
+        daily: "ప్రతి రోజు", fest: "పండుగలు మాత్రమే", iphone: "iPhone / iPad / Mac", android: "Android (Google Calendar)", copy: "లింక్ కాపీ", copied: "కాపీ అయింది",
+        ih: "iPhone", isteps: ["“iPhone / iPad / Mac” నొక్కి, Subscribe నొక్కండి.", "“Remove Alerts” ఆఫ్‌లోనే ఉంచండి; అప్పుడే ఉదయం 6 గంటల రిమైండర్ వస్తుంది.", "Done నొక్కండి."],
+        ifix: "రిమైండర్ రాకపోతే: Settings → Calendar (iOS 18లో Settings → Apps → Calendar) → Calendar Accounts → Subscribed Calendars → Panchangam → Remove Alerts ఆఫ్ చేయండి.",
+        ah: "Android", asteps: ["Googleలో సైన్ ఇన్ అయి “Android (Google Calendar)” నొక్కి, Add నొక్కండి.", "Google Calendar యాప్‌లో: Settings → Panchangam → Sync ఆన్ చేయండి.", "అదే చోట all-day notification ఉదయం 6:00కి పెట్టండి."],
+        stop: "ఆపాలంటే: iPhoneలో Subscribed Calendarsలో Delete చేయండి. Googleలో Settings → Panchangam → Unsubscribe.",
+      },
+    },
+  };
+  const CITY_TE = { lombard: "లోంబార్డ్", naperville: "నేపర్‌విల్", normal: "నార్మల్", dallas: "డాలస్", hyderabad: "హైదరాబాద్",
+                    mumbai: "ముంబై", kolkata: "కోల్‌కతా", bengaluru: "బెంగళూరు", chennai: "చెన్నై" };
+  const TZ = { lombard: "America/Chicago", naperville: "America/Chicago", normal: "America/Chicago",
+               dallas: "America/Chicago", hyderabad: "Asia/Kolkata", mumbai: "Asia/Kolkata",
+               kolkata: "Asia/Kolkata", bengaluru: "Asia/Kolkata", chennai: "Asia/Kolkata" };
+
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { /* storage unavailable */ } },
+  };
+  const INLINE = window.PANCHANGA || null;
+  let META = INLINE ? INLINE.meta : null;
+  const cache = {};
+
+  const $ = id => document.getElementById(id);
+  const el = (tag, attrs = {}, ...kids) => {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === "class") n.className = v; else if (k === "text") n.textContent = v; else n.setAttribute(k, v);
+    }
+    for (const kid of kids) if (kid != null) n.append(kid);
+    return n;
+  };
+  const todayIn = tz => new Intl.DateTimeFormat("en-CA", { timeZone: tz }).format(new Date());
+  const addDays = (iso, n) => { const d = new Date(iso + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+
+  const state = {
+    city: store.get("pd.city") || "lombard",
+    lang: store.get("pd.lang") || "te",
+    date: null,
+  };
+
+  async function loadMeta() {
+    if (META) return META;
+    META = await (await fetch("data/meta.json")).json();
+    return META;
+  }
+  async function getDay(city, iso) {
+    if (INLINE) return INLINE.days[city]?.[iso] || null;
+    const key = `${city}/${iso.slice(0, 7)}`;
+    if (!(key in cache)) {
+      try { const r = await fetch(`data/${key}.json`); cache[key] = r.ok ? await r.json() : {}; }
+      catch { cache[key] = {}; }
+    }
+    return cache[key][iso] || null;
+  }
+
+  function row(label, value, extra) {
+    const v = el("span", {}, value);
+    if (extra) v.append(extra);
+    return el("div", { class: "row" }, el("span", { text: label }), v);
+  }
+  function multi(list, t) {
+    if (!list.length) return t.none;
+    return list.join(", ");
+  }
+
+  function render(day) {
+    const t = UI[state.lang];
+    const main = $("main");
+    main.replaceChildren();
+    main.classList.remove("fade"); void main.offsetWidth; main.classList.add("fade");
+    if (!day) { main.append(el("p", { class: "note", text: t.out })); return; }
+    const v = day[state.lang];
+
+    const h = v.header;
+    main.append(el("div", { class: "ribbon" },
+      ...["samvatsara", "ayana", "ritu", "masa", "paksha", "tithi", "vara"].map(k =>
+        el("div", {}, el("span", { class: "lbl", text: t[k] }), el("b", { text: h[k] })))));
+
+    if (v.festivals.length) {
+      main.append(el("section", {}, el("h2", { text: t.festivals }),
+        el("div", { class: "fest" }, ...v.festivals.map(f => el("span", { text: f })))));
+    }
+
+    const limbs = el("div", { class: "rows" });
+    for (const l of v.limbs) {
+      const [first, ...rest] = l.items;
+      const val = el("span", {}, `${first.name} — ${t.until(first.until)}`);
+      for (const r of rest) val.append(el("span", { class: "then", text: `${t.then} ${r.name} — ${t.until(r.until)}` }));
+      limbs.append(el("div", { class: "row" }, el("span", { text: t[l.key] }), val));
+    }
+    main.append(el("section", {}, el("h2", { text: t.limbs }), limbs));
+
+    const s = v.sun;
+    main.append(el("section", {}, el("h2", { text: t.sun }), el("div", { class: "rows" },
+      row(t.sunrise, s.sunrise), row(t.midday, s.midday), row(t.sunset, s.sunset),
+      row(t.moonrise, s.moonrise || t.none), row(t.moonset, s.moonset || t.none),
+      row(t.sun_rasi, s.sun_rasi), row(t.moon_rasi, s.moon_rasi))));
+
+    const a = v.avoid, g = v.good;
+    main.append(el("div", { class: "times" },
+      el("section", { class: "avoid" }, el("h2", { text: t.avoid }), el("div", { class: "rows" },
+        row(t.rahu_kalam, a.rahu_kalam), row(t.yamagandam, a.yamagandam), row(t.gulika_kalam, a.gulika_kalam),
+        row(t.durmuhurtam, multi(a.durmuhurtam, t)), row(t.varjyam, multi(a.varjyam, t)))),
+      el("section", { class: "good" }, el("h2", { text: t.good }), el("div", { class: "rows" },
+        row(t.brahma_muhurta, g.brahma_muhurta), row(t.abhijit, g.abhijit),
+        row(t.amrita_kalam, multi(g.amrita_kalam, t))))));
+
+    const sk = el("section", {}, el("h2", { text: t.sankalpam }));
+    if (v.sankalpam.length > 1) sk.append(el("p", { class: "note", text: t.changes }));
+    for (const item of v.sankalpam) {
+      const copyBtn = el("button", { type: "button", text: t.copy });
+      copyBtn.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(item.full); copyBtn.textContent = t.copied; }
+        catch { const sel = getSelection(); const r = document.createRange(); r.selectNodeContents(full); sel.removeAllRanges(); sel.addRange(r); }
+      });
+      const full = el("p", { text: item.full });
+      sk.append(el("div", { class: "sk" },
+        el("span", { class: "when", text: `${item.when.map(w => t[w]).join(" · ")} (${item.at})` }),
+        el("p", { text: item.time }),
+        el("details", {}, el("summary", { text: t.full }), full, copyBtn)));
+    }
+    sk.append(el("p", { class: "note", text: t.gotra }));
+    main.append(sk);
+
+    main.append(quiz(day, t));
+  }
+
+  // One question a day, chosen and shuffled from the date so everyone gets the same one.
+  function quiz(day, t) {
+    const L = META.labels, lang = state.lang, q = day.quiz;
+    const kinds = ["tithi", "nakshatra", "masa", "ritu"];
+    let seed = [...state.date].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
+    const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32;
+    const kind = kinds[seed % kinds.length];
+    const names = {
+      tithi: i => (i === 29 ? L.AMAVASYA[lang] : L.TITHI[lang][i % 15]),
+      nakshatra: i => L.NAKSHATRA[lang][i], masa: i => L.MASA[lang][i], ritu: i => L.RITU[lang][i],
+    }[kind];
+    const size = { tithi: 30, nakshatra: 27, masa: 12, ritu: 6 }[kind];
+    const correct = names(q[kind]);
+    const opts = new Set([correct]);
+    while (opts.size < 4) opts.add(names(Math.floor(rnd() * size)));
+    const list = [...opts].sort(() => rnd() - 0.5);
+    const box = el("section", { class: "quiz" }, el("h2", { text: t.quiz }), el("p", { style: "margin:0", text: t.q[kind] }));
+    const result = el("p", { class: "result", "aria-live": "polite" });
+    const opsEl = el("div", { class: "opts" });
+    const key = `pd.quiz.${state.date}`;
+    const done = store.get(key);
+    for (const o of list) {
+      const b = el("button", { type: "button", text: o });
+      b.addEventListener("click", () => answer(o));
+      opsEl.append(b);
+    }
+    function answer(o) {
+      for (const b of opsEl.children) {
+        b.disabled = true;
+        if (b.textContent === correct) b.dataset.state = "right";
+        else if (b.textContent === o) b.dataset.state = "wrong";
+      }
+      const ok = o === correct;
+      if (!store.get(key)) {
+        store.set(key, ok ? "1" : "0");
+        const prev = store.get(`pd.quiz.${addDays(state.date, -1)}`) === "1" ? Number(store.get("pd.streak") || 0) : 0;
+        store.set("pd.streak", String(ok ? prev + 1 : 0));
+      }
+      const streak = Number(store.get("pd.streak") || 0);
+      result.textContent = `${ok ? t.right : t.answer(correct)} ${t.fact[kind]} ${streak ? "· " + t.streak(streak) : ""}`;
+    }
+    box.append(opsEl, result);
+    if (done) answer(done === "1" ? correct : list.find(x => x !== correct));
+    return box;
+  }
+
+  const SITE = "https://sridharneti.github.io/panchanga-daily/";
+  let feedKind = store.get("pd.feed") || "daily";
+  function renderSubscribe() {
+    const t = UI[state.lang].sub;
+    const base = INLINE || location.protocol === "file:" ? SITE : new URL(".", location.href).href;
+    const https = `${base}cal/${state.city}-${state.lang}-${feedKind}.ics`;
+    const webcal = https.replace(/^https?:/, "webcal:");
+    const google = `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(webcal)}`;
+    const kindSeg = el("div", { class: "seg", role: "group", "aria-label": "Feed" });
+    for (const k of ["daily", "fest"]) {
+      const value = k === "fest" ? "festivals" : "daily";
+      const b = el("button", { type: "button", text: t[k], "aria-pressed": String(feedKind === value) });
+      b.addEventListener("click", () => { feedKind = value; store.set("pd.feed", value); renderSubscribe(); });
+      kindSeg.append(b);
+    }
+    const copy = el("button", { type: "button", text: t.copy });
+    const code = el("code", { text: https });
+    copy.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(https); copy.textContent = t.copied; }
+      catch { const r = document.createRange(); r.selectNodeContents(code); getSelection().removeAllRanges(); getSelection().addRange(r); }
+    });
+    const steps = list => el("ol", {}, ...list.map(x => el("li", { text: x })));
+    $("subscribe").replaceChildren(el("div", { class: "sub" },
+      el("h2", { id: "sub-h", text: t.h }), el("p", { class: "note", text: t.intro }), kindSeg,
+      el("div", { class: "btns" }, el("a", { class: "btn", href: webcal, text: t.iphone }),
+        el("a", { class: "btn alt", href: google, target: "_blank", rel: "noopener", text: t.android }), copy),
+      code,
+      el("h3", { text: t.ih }), steps(t.isteps), el("p", { class: "note", text: t.ifix }),
+      el("h3", { text: t.ah }), steps(t.asteps), el("p", { class: "note", text: t.stop })));
+  }
+
+  async function refresh() {
+    const t = UI[state.lang];
+    document.documentElement.lang = state.lang;
+    $("lang-en").setAttribute("aria-pressed", String(state.lang === "en"));
+    $("lang-te").setAttribute("aria-pressed", String(state.lang === "te"));
+    $("today").textContent = t.today;
+    const sel = $("city");
+    for (const o of sel.options) o.textContent = state.lang === "te" ? CITY_TE[o.value] : META.cities.find(c => c.slug === o.value).name;
+    sel.value = state.city;
+    $("date").textContent = new Intl.DateTimeFormat(t.locale, { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
+      .format(new Date(state.date + "T12:00:00Z"));
+    const cityName = state.lang === "te" ? CITY_TE[state.city] : META.cities.find(c => c.slug === state.city).name;
+    $("footer").textContent = t.foot(cityName);
+    if (INLINE) {
+      const fmt = new Intl.DateTimeFormat(t.locale, { day: "numeric", month: "short", timeZone: "UTC" });
+      const [a, b] = META.range.map(x => fmt.format(new Date(x + "T12:00:00Z")));
+      $("preview").textContent = t.preview(`${a} – ${b}`);
+      $("preview").hidden = false;
+    }
+    renderSubscribe();
+    render(await getDay(state.city, state.date));
+  }
+
+  async function start() {
+    await loadMeta();
+    const sel = $("city");
+    for (const c of META.cities) sel.append(el("option", { value: c.slug, text: c.name }));
+    if (!META.cities.some(c => c.slug === state.city)) state.city = "lombard";
+    state.date = todayIn(TZ[state.city]);
+    if (INLINE && (state.date < META.range[0] || state.date > META.range[1])) state.date = META.range[0];
+    sel.addEventListener("change", () => { state.city = sel.value; store.set("pd.city", state.city); refresh(); });
+    $("lang-en").addEventListener("click", () => { state.lang = "en"; store.set("pd.lang", "en"); refresh(); });
+    $("lang-te").addEventListener("click", () => { state.lang = "te"; store.set("pd.lang", "te"); refresh(); });
+    $("prev").addEventListener("click", () => { state.date = addDays(state.date, -1); refresh(); });
+    $("next").addEventListener("click", () => { state.date = addDays(state.date, 1); refresh(); });
+    $("today").addEventListener("click", () => { state.date = todayIn(TZ[state.city]); refresh(); });
+    refresh();
+  }
+  start();
+})();
+</script>
