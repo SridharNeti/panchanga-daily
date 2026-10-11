@@ -436,6 +436,18 @@ footer { font-size: .85rem; color: var(--muted); border-top: 1px solid var(--lin
     $("prev").addEventListener("click", () => { state.date = addDays(state.date, -1); refresh(); });
     $("next").addEventListener("click", () => { state.date = addDays(state.date, 1); refresh(); });
     $("today").addEventListener("click", () => { state.date = todayIn(TZ[state.city]); refresh(); });
+    // If the page was showing today, move to the new day when it is reopened or left open past midnight.
+    let shownToday = todayIn(TZ[state.city]);
+    const rollover = () => {
+      const now = todayIn(TZ[state.city]);
+      if (now !== shownToday) {
+        if (state.date === shownToday) { state.date = now; refresh(); }
+        shownToday = now;
+      }
+    };
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) rollover(); });
+    setInterval(rollover, 60 * 1000);
+    sel.addEventListener("change", () => { shownToday = todayIn(TZ[state.city]); });
     refresh();
   }
   start();
