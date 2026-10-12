@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="te">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panchanga Today</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Compact card for a Home Assistant dashboard: today's essentials, with what is happening right now on top.
+   Usage: ha.html?city=normal&lang=te */
+:root {
+  --bg: #ffffff; --ink: #1c2925; --muted: #5d6e66; --line: #e2e8e2; --accent: #9e2a2f;
+  --gold: #8a5a0b; --gold-bg: #fbf0d6; --avoid: #973030; --avoid-bg: #fbeceb; --good: #2c6644; --good-bg: #e6f2ea;
+  --font: "Source Sans 3", "Noto Sans Telugu", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #1c1c1c; --ink: #e6ece8; --muted: #9eaca5; --line: #333a36; --accent: #ef8a8a;
+    --gold: #e7bb55; --gold-bg: #2a2313; --avoid: #f3a3a3; --avoid-bg: #2b1818; --good: #93d3aa; --good-bg: #14261b; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 var(--font); }
+.card { padding: 14px 16px; display: grid; gap: 10px; }
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.top b { font-size: 1.15rem; color: var(--accent); }
+.top span { color: var(--muted); font-size: .9rem; }
+.line { font-size: .95rem; }
+.now { border-radius: 8px; padding: 8px 12px; font-weight: 600; }
+.now.avoid { background: var(--avoid-bg); color: var(--avoid); }
+.now.good { background: var(--good-bg); color: var(--good); }
+.fest { display: flex; flex-wrap: wrap; gap: 6px; }
+.fest span { background: var(--gold-bg); color: var(--gold); border-radius: 999px; padding: 3px 10px; font-weight: 600; font-size: .92rem; }
+.rows { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-variant-numeric: tabular-nums; }
+.rows dt { color: var(--muted); }
+.rows dd { margin: 0; min-width: 0; }
+.rows dd.past { color: var(--muted); text-decoration: line-through; }
+.err { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="card" id="card"><p class="err">…</p></div>
+<script>
+(() => {
+  const P = new URLSearchParams(location.search);
+  const city = P.get("city") || "normal";
+  const lang = P.get("lang") === "en" ? "en" : "te";
+  const TZ = { lombard: "America/Chicago", naperville: "America/Chicago", normal: "America/Chicago", dallas: "America/Chicago",
+    raleigh: "America/New_York", hyderabad: "Asia/Kolkata", mumbai: "Asia/Kolkata", kolkata: "Asia/Kolkata",
+    bengaluru: "Asia/Kolkata", chennai: "Asia/Kolkata" };
+  const T = {
+    en: { tithi: "Tithi", nakshatra: "Nakshatra", sun: "Sunrise / Sunset", rahu: "Rahu kalam", yama: "Yamagandam",
+      dur: "Durmuhurtam", varj: "Varjyam", abhijit: "Abhijit", amrita: "Amrita kalam", until: t => `until ${t}`,
+      nowAvoid: (n, t) => `${n} now, until ${t}`, nowGood: (n, t) => `${n} now, until ${t}`, none: "None",
+      nodata: "No panchangam data for today yet.", locale: "en-US" },
+    te: { tithi: "తిథి", nakshatra: "నక్షత్రం", sun: "సూర్యోదయం / అస్తమయం", rahu: "రాహు కాలం", yama: "యమగండం",
+      dur: "దుర్ముహూర్తం", varj: "వర్జ్యం", abhijit: "అభిజిత్", amrita: "అమృత కాలం", until: t => `${t} వరకు`,
+      nowAvoid: (n, t) => `ఇప్పుడు ${n}, ${t} వరకు`, nowGood: (n, t) => `ఇప్పుడు ${n}, ${t} వరకు`, none: "లేదు",
+      nodata: "ఈ రోజు పంచాంగం వివరాలు ఇంకా లేవు.", locale: "te-IN" },
+  }[lang];
+  const tz = TZ[city] || "America/Chicago";
+  const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: tz }).format(new Date());
+  const clock = iso => new Intl.DateTimeFormat(lang === "te" ? "te-IN" : "en-US",
+    { hour: "numeric", minute: "2-digit", timeZone: tz }).format(new Date(iso));
+  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  let cache = {}, shown = null;
+
+  async function load(iso) {
+    const key = iso.slice(0, 7);
+    if (!cache[key]) {
+      const r = await fetch(`data/${city}/${key}.json`, { cache: "no-cache" });
+      cache[key] = r.ok ? await r.json() : {};
+    }
+    return cache[key][iso];
+  }
+
+  async function render() {
+    const iso = today(); shown = iso;
+    const card = document.getElementById("card");
+    let day;
+    try { day = await load(iso); } catch { day = null; }
+    if (!day) { card.replaceChildren(el("p", "err", T.nodata)); return; }
+    const v = day[lang], raw = day.raw, h = v.header, now = Date.now();
+    const kids = [];
+    const top = el("div", "top");
+    top.append(el("b", null, `${h.tithi} · ${h.vara}`),
+      el("span", null, new Intl.DateTimeFormat(T.locale, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(iso + "T12:00:00Z"))));
+    kids.push(top, el("div", "line", `${h.samvatsara} · ${h.ayana} · ${h.ritu} · ${h.masa} · ${h.paksha}`));
+    if (v.festivals.length) {
+      const f = el("div", "fest"); v.festivals.forEach(x => f.append(el("span", null, x))); kids.push(f);
+    }
+    // What is happening right now.
+    const windows = [
+      [T.rahu, [raw.rahu_kalam], "avoid"], [T.yama, [raw.yamagandam], "avoid"],
+      [T.dur, raw.durmuhurtam, "avoid"], [T.varj, raw.varjyam, "avoid"],
+      [T.abhijit, [raw.abhijit], "good"], [T.amrita, raw.amrita_kalam, "good"],
+    ];
+    for (const [name, list, kind] of windows) {
+      const w = list.find(x => new Date(x.start) <= now && now < new Date(x.end));
+      if (w) kids.push(el("div", `now ${kind}`, (kind === "avoid" ? T.nowAvoid : T.nowGood)(name, clock(w.end))));
+    }
+    const rows = el("dl", "rows");
+    const add = (label, text, endIso) => {
+      rows.append(el("dt", null, label));
+      const dd = el("dd", null, text);
+      if (endIso && new Date(endIso) < now) dd.className = "past";
+      rows.append(dd);
+    };
+    const limb = k => v.limbs.find(l => l.key === k).items.map(i => `${i.name} — ${T.until(i.until)}`).join("; ");
+    add(T.tithi, limb("tithi"));
+    add(T.nakshatra, limb("nakshatra"));
+    add(T.sun, `${v.sun.sunrise} / ${v.sun.sunset}`);
+    add(T.rahu, v.avoid.rahu_kalam, raw.rahu_kalam.end);
+    add(T.yama, v.avoid.yamagandam, raw.yamagandam.end);
+    add(T.dur, v.avoid.durmuhurtam.join(", ") || T.none, raw.durmuhurtam.at(-1)?.end);
+    add(T.varj, v.avoid.varjyam.join(", ") || T.none, raw.varjyam.at(-1)?.end);
+    add(T.abhijit, v.good.abhijit, raw.abhijit.end);
+    kids.push(rows);
+    card.replaceChildren(...kids);
+  }
+
+  render();
+  // Refresh "now" highlights every minute; reload data when the day changes.
+  setInterval(() => { if (today() !== shown) cache = {}; render(); }, 60 * 1000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) render(); });
+})();
+</script>
+</body>
+</html>

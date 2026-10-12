@@ -124,6 +124,8 @@ def build(start: dt.date, end: dt.date):
             days[day.isoformat()] = {
                 "en": day_view(city, day, fest[day.isoformat()], "en", d),
                 "te": day_view(city, day, fest[day.isoformat()], "te", d),
+                "raw": {k: d[k] for k in ("rahu_kalam", "yamagandam", "gulika_kalam", "durmuhurtam", "varjyam",
+                                          "abhijit", "amrita_kalam", "brahma_muhurta")},
                 "quiz": {"tithi": d["tithi"][0]["index"], "nakshatra": d["nakshatra"][0]["index"],
                          "masa": d["masa"], "ritu": d["ritu"], "vara": d["vara"]},
             }
